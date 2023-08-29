@@ -3,6 +3,9 @@ import os
 
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,15 +14,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3m0le+yv(gv5kduqok4lri+un2r&a3f7e)_1xte+4y-f_!z*y('
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Use API Key and set the GPT model
-DEBUG = os.environ.get('DEBUG')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['ec2-54-161-114-68.compute-1.amazonaws.com']
 
