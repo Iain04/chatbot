@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['ec2-54-161-114-68.compute-1.amazonaws.com']
+ALLOWED_HOSTS = ['ec2-54-161-114-68.compute-1.amazonaws.com', '54.161.114.68']
 
 
 # Application definition
@@ -131,7 +131,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("54.161.114.68", 6379)],
         },
     },
 }
