@@ -38,7 +38,7 @@ function message_store(message, time, user) {
 }
 
 // Establish chatsocket connection
-const chatSocket = new WebSocket(
+const chatSocket = new ReconnectingWebSocket(
     'ws://'
     + window.location.host
     + '/ws/chat/'
