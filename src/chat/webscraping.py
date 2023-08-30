@@ -69,9 +69,14 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     new_query = urlencode(query_parameters, doseq=True)
     new_url = urlunparse(parsed_url._replace(query=new_query))
 
-    # Web scrape info 
+    # Web scrape info
+    # Chrome options 
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')  # Enable headless mode
+    chrome_options.add_argument('--no-sandbox')  # Avoid sandbox issues
+    chrome_options.add_argument('--disable-dev-shm-usage')  # Avoid memory issues
     # Create a new instance of the Chrome browser
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(chrome_options=chrome_options)
 
     # Navigate to the URL
     driver.get(new_url)
