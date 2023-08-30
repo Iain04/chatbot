@@ -88,5 +88,5 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     # Close the browser window
     driver.quit()
 
-    return rooms
+    return rooms, new_url
 

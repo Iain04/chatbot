@@ -140,7 +140,7 @@ def generate_chat_response(message_hist):
                 num_children = arguments["num_children"]
                 num_rooms = arguments["num_rooms"]
 
-                rooms_data = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
+                rooms_data, url = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
                 # Format and print the extracted room information in chatbot style
                 function_rooms_message = "Here are the available rooms:\n\n"
                 for idx, room in enumerate(rooms_data, start=1):
@@ -150,6 +150,7 @@ def generate_chat_response(message_hist):
                     room_message = f"Room {idx}:\nName: {room_name}\nPrice: {room_price}\n\n"
                     function_rooms_message += room_message
 
+                function_rooms_message + ". If you would like to book one of the rooms the url is provide here. Url:" + str(url)
                 return function_rooms_message
 
 
