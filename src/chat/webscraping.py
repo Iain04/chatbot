@@ -84,8 +84,13 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     # Wait for the page to load (adjust the timeout as needed)
     wait = WebDriverWait(driver, 10)
 
+    print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
+
     # Wait for room rate items to load
-    room_rate_items = wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "room-rate-card")))
+    try:
+        room_rate_items = wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "room-rate-card")))
+    except Exception as e:
+        print("Exception:", e)
 
     # Extract data from room rate items
     rooms = [extract_room_data(room) for room in room_rate_items]
