@@ -76,7 +76,7 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     chrome_options.add_argument('--no-sandbox')  # Avoid sandbox issues
     chrome_options.add_argument('--disable-dev-shm-usage')  # Avoid memory issues
     # Create a new instance of the Chrome browser
-    driver = webdriver.Chrome(chrome_options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
 
     # Navigate to the URL
     driver.get(new_url)
