@@ -83,10 +83,10 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
 
     # Wait for the page to load (adjust the timeout as needed)
     wait = WebDriverWait(driver, 10)
-
     # Initialize room_rate_items outside the try-except block
     room_rate_items = None
 
+    print(new_url)
     print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
 
     # Wait for room rate items to load
