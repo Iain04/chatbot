@@ -88,29 +88,6 @@ functions = [
             "required": ["check_in_date", "check_out_date", "num_adult", "num_children", "num_rooms"],
         },
     },
-    {
-        "name": "get_n_day_weather_forecast",
-        "description": "Get an N-day weather forecast",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "location": {
-                    "type": "string",
-                    "description": "The city and state, e.g. San Francisco, CA",
-                },
-                "format": {
-                    "type": "string",
-                    "enum": ["celsius", "fahrenheit"],
-                    "description": "The temperature unit to use. Infer this from the users location.",
-                },
-                "num_days": {
-                    "type": "integer",
-                    "description": "The number of days to forecast",
-                }
-            },
-            "required": ["location", "format", "num_days"]
-        },
-    },
 ]
 
 def generate_chat_response(message_hist):
@@ -141,16 +118,22 @@ def generate_chat_response(message_hist):
                 num_rooms = arguments["num_rooms"]
 
                 rooms_data, url = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
-                # Format and print the extracted room information in chatbot style
-                function_rooms_message = "Here are the available rooms:\n\n"
-                for idx, room in enumerate(rooms_data, start=1):
-                    room_name = room["name"]
-                    room_price = room["price"]
+                print(url)
+                
+                # Check if there is rooms retrieved is None or Url is None
+                if rooms_data is None or url is None:
+                    function_rooms_message = "Sorry I am unable to answer your question right now. Try again later."
+                else:
+                    # Format and print the extracted room information in chatbot style
+                    function_rooms_message = "Here are the available rooms: "
+                    for idx, room in enumerate(rooms_data, start=1):
+                        room_name = room["name"]
+                        room_price = room["price"]
 
-                    room_message = f"Room {idx}:\nName: {room_name}\nPrice: {room_price}\n\n"
-                    function_rooms_message += room_message
+                        room_message = f"(Room {idx}: Name: {room_name} Price: {room_price})"
+                        function_rooms_message += room_message
 
-                function_rooms_message + ". If you would like to book one of the rooms the url is provide here. Url:" + str(url)
+                    function_rooms_message += f". If you would like to book any one of the rooms, <a href='{url}' target='_blank'>Click here to book</a>"
                 return function_rooms_message
 
 
@@ -161,5 +144,3 @@ def generate_chat_response(message_hist):
         print(chat_response.json())
         return None
 
-
-    

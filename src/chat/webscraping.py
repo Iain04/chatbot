@@ -42,7 +42,7 @@ def convert_date(date):
 # Define a function to extract the room data
 def extract_room_data(room_element):
     room_name = room_element.find_element(By.CLASS_NAME, "d-flex.roomName").text
-    room_price = room_element.find_element(By.CLASS_NAME, "price-wrapper").find_element(By.CLASS_NAME, "price").text
+    room_price = room_element.find_element(By.CLASS_NAME, "cash").text
     return {"name": room_name, "price": room_price}
 
 # Web scrape hotel info for avaliablity
@@ -73,8 +73,6 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     # Chrome options 
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')  # Enable headless mode
-    chrome_options.add_argument('--no-sandbox')  # Avoid sandbox issues
-    chrome_options.add_argument('--disable-dev-shm-usage')  # Avoid memory issues
     # Create a new instance of the Chrome browser
     driver = webdriver.Chrome(options=chrome_options)
 
@@ -86,7 +84,6 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     # Initialize room_rate_items outside the try-except block
     room_rate_items = None
 
-    print(new_url)
     print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
 
     # Wait for room rate items to load
@@ -96,7 +93,11 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
         print("Exception:", e)
 
     # Extract data from room rate items
-    rooms = [extract_room_data(room) for room in room_rate_items]
+    try:
+        rooms = [extract_room_data(room) for room in room_rate_items]
+    except Exception as e:
+        print("Exception:", e)
+        rooms = None
 
     # Close the browser window
     driver.quit()
