@@ -124,7 +124,7 @@ def generate_chat_response(message_hist):
                 
 
                 # Check if there is rooms retrieved is None or Url is None
-                if url is None or data_dict is None:
+                if url is None or data_dict is None or check_values is None:
                     function_assistant_messages.append("Sorry I am unable to answer your question right now. Try again later.")
                 else:
                     # Check if there are any invalid inputs

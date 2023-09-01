@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 from datetime import datetime
 
@@ -44,13 +45,20 @@ def extract_room_data(room_element):
     room_price = room_element.find_element(By.CLASS_NAME, "cash").text
     return {"name": room_name, "price": room_price}
 
-def element_exists(driver, value):
+def element_check(driver, value):
     try:
-        driver.find_elements(By.XPATH, value)
-        return True
+        element = driver.find_element(By.XPATH, value)
+        class_name = element.get_attribute("class")
+
+        if 'show' in class_name:
+            return True
+        elif 'hidden' in class_name:
+            return False
+        
     except Exception as e:
         print("Exception:", e)
-        return False
+        return None
+    
 
 # Web scrape hotel info for avaliablity
 def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date):
@@ -76,19 +84,24 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     new_query = urlencode(query_parameters, doseq=True)
     new_url = urlunparse(parsed_url._replace(query=new_query))
 
+    # Define the User-Agent header to mimic a web browser
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.9999.99 Safari/537.36"
+
     # Web scrape info
     # Chrome options 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')  # Enable headless mode
+    options = Options()
+    options.headless = True  # Enable headless mode
+    options.add_argument(f"user-agent={user_agent}")
 
     # Create a new instance of the Chrome browser
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=options)
 
     # Navigate to the URL
     driver.get(new_url)
 
     # Wait for the page to load (adjust the timeout as needed)
     wait = WebDriverWait(driver, 10)
+
     # Initialize values outside the try-except block
     room_rate_items = None
     rooms = None
@@ -123,7 +136,7 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
         print("Exception:", e)
         data_dict = None
 
-    check_values = element_exists(driver, '//*[@id="applicationWrapper"]/div/find-hotels-root/room-rate-view/ihg-ui-error-notifications/section/div/div[1]/div[2]')
+    check_values = element_check(driver, '//*[@id="applicationWrapper"]/div/find-hotels-root/room-rate-view/ihg-ui-error-notifications/section')
 
     print(check_values)
 

@@ -1,5 +1,6 @@
 import json
 from . import openai_utils as oau
+import asyncio
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -33,10 +34,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             existing_messages = text_data_json["messages"]
             # New message
             new_message = text_data_json["message_new"]
-            # Send new message instantly back
-            await self.channel_layer.group_send(
-                self.room_group_name, {"type": "chat_message", "message": new_message}
-            )
             # Remove 'timestamp' key from each dictionary
             if existing_messages:  # Check if the list is not empty
                 for message in existing_messages:
@@ -48,19 +45,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 existing_messages = []
 
             existing_messages.append({"role": "user", "content": new_message})
-            # Use chatgpt to generate a response
-            assistant_messages = oau.generate_chat_response(existing_messages)
 
-            if assistant_messages == None:  # Check if there is an error
+
+            # Send new message
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "chat_message", "message": new_message}
+            )
+            
+            # Use chatgpt to generate a response concurrently
+            assistant_messages_task = asyncio.create_task(oau.generate_chat_response(existing_messages))
+
+            if assistant_messages_task == None:  # Check if there is an error
                 await self.channel_layer.group_send(
                     self.room_group_name, {"type": "bot_message", "assistant_message": "Sorry for the inconvenience, I am unable to answer your question right now. Try again later."}
                 )
             else:
+                # Wait for the assistant_messages_task to complete
+                assistant_messages = await assistant_messages_task
+
                 for assistant_message in assistant_messages:
                     await self.channel_layer.group_send(
                         self.room_group_name, {"type": "bot_message", "assistant_message": assistant_message}
                     )
 
+    
 
     # Receive message from room group
     async def chat_message(self, event):
