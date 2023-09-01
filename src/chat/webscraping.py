@@ -45,21 +45,6 @@ def extract_room_data(room_element):
     room_price = room_element.find_element(By.CLASS_NAME, "cash").text
     return {"name": room_name, "price": room_price}
 
-def element_check(driver, value):
-    try:
-        element = driver.find_element(By.XPATH, value)
-        class_name = element.get_attribute("class")
-
-        if 'show' in class_name:
-            return True
-        elif 'hidden' in class_name:
-            return False
-        
-    except Exception as e:
-        print("Exception:", e)
-        return None
-    
-
 # Web scrape hotel info for avaliablity
 def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date):
     url = "https://www.ihg.com/crowneplaza/hotels/us/en/find-hotels/select-roomrate?fromRedirect=true&qSrt=sBR&qIta=99502222&icdv=99502222&qSlH=SINCP&qRms=6&qAdlt=2&qChld=1&qCiD=25&qCiMy=72023&qCoD=26&qCoMy=72023&qAAR=6CBARC&qRtP=6CBARC&setPMCookies=true&qSHBrC=CP&qDest=75%20Airport%20Boulevard%2001-01,%20Singapore,%20SG&srb_u=1"
@@ -106,7 +91,6 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     room_rate_items = None
     rooms = None
     data_dict = {}
-    check_values = None
 
     print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
 
@@ -136,12 +120,8 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
         print("Exception:", e)
         data_dict = None
 
-    check_values = element_check(driver, '//*[@id="applicationWrapper"]/div/find-hotels-root/room-rate-view/ihg-ui-error-notifications/section')
-
-    print(check_values)
-
     # Close the browser window
     driver.quit()
 
-    return rooms, new_url, check_values, data_dict
+    return rooms, new_url, data_dict
 
