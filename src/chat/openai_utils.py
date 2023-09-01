@@ -105,6 +105,7 @@ def generate_chat_response(message_hist):
         assistant_response = chat_response.json()["choices"][0]["message"]
         assistant_message = assistant_response["content"]
         assistant_messages.append(assistant_message)
+        print(chat_response.json())
 
         # Check if there is a function_call
         if chat_response.json()["choices"][0]["finish_reason"] == "function_call":
