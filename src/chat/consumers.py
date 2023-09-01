@@ -47,28 +47,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
             existing_messages.append({"role": "user", "content": new_message})
 
 
-            # Send new message
+            # Send new message instantly back
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "chat_message", "message": new_message}
             )
             
-            # Use chatgpt to generate a response concurrently
-            assistant_messages_task = oau.generate_chat_response(existing_messages)
+            # Use chatgpt to generate a response
+            assistant_messages = oau.generate_chat_response(existing_messages)
 
-            if assistant_messages_task == None:  # Check if there is an error
+            if assistant_messages == None:  # Check if there is an error
                 await self.channel_layer.group_send(
                     self.room_group_name, {"type": "bot_message", "assistant_message": "Sorry for the inconvenience, I am unable to answer your question right now. Try again later."}
                 )
             else:
-                # Wait for the assistant_messages_task to complete
-                assistant_messages = await assistant_messages_task
-
                 for assistant_message in assistant_messages:
                     await self.channel_layer.group_send(
                         self.room_group_name, {"type": "bot_message", "assistant_message": assistant_message}
                     )
 
-    
 
     # Receive message from room group
     async def chat_message(self, event):
