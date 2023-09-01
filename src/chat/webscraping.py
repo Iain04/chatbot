@@ -70,7 +70,7 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     new_url = urlunparse(parsed_url._replace(query=new_query))
 
     # Define the User-Agent header to mimic a web browser
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.9999.99 Safari/537.36"
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.1000.100 Safari/537.36"
 
     # Web scrape info
     # Chrome options 
