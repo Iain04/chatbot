@@ -111,14 +111,22 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
 
     # Extract values to display
     try:
-        data_dict['date_range'] = driver.find_element(By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[1]').text
-        data_dict['guest_count'] = int(driver.find_element(By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[2]/span[1]').text.split()[0])
-        data_dict['room_count'] = int(driver.find_element(By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[2]/span[2]').text.split()[0])
-        print(data_dict)
+        # Wait for the elements to become visible (adjust timeout as needed)
+        date_element = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[1]'))
+        )
+        guest_count_element = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[2]/span[1]'))
+        )
+        room_count_element = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[2]/span[2]'))
+        )
     
-    except Exception as e:
-        print("Exception:", e)
-        data_dict = None
+        # Extract data from the elements
+        data_dict['date_range'] = date_element.text
+        data_dict['guest_count'] = int(guest_count_element.text.split()[0])
+        data_dict['room_count'] = int(room_count_element.text.split()[0])
+        print(data_dict)
 
     # Close the browser window
     driver.quit()
