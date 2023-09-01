@@ -19,6 +19,9 @@ GPT_MODEL = "gpt-3.5-turbo-0613"
 
 # Global variable
 messages = []
+function_assistant_messages = []
+assistant_messages = []
+url_official = "https://changiairport.crowneplaza.com/day-use-room"
 # Appending the system information of the bot
 messages.append({"role": "system", 
                  "content": """You are a laconic assistant for Crowne Plaza Hotel Singapore. 
@@ -65,12 +68,12 @@ functions = [
                 "check_in_date": {
                     "type": "string",
                     "format": "date",
-                    "description": "The users check in date of the hotel room.",
+                    "description": "The users check in date of the hotel room. The format must be Y-m-d.",
                 },
                 "check_out_date": {
                     "type": "string",
                     "format": "date",
-                    "description": "The users check out date of the hotel room.",
+                    "description": "The users check out date of the hotel room. The format must be Y-m-d.",
                 },
                 "num_adult": {
                     "type": "integer",
@@ -99,10 +102,9 @@ def generate_chat_response(message_hist):
             messages, functions=functions
         )
 
-        print(chat_response.json())
-
         assistant_response = chat_response.json()["choices"][0]["message"]
         assistant_message = assistant_response["content"]
+        assistant_messages.append(assistant_message)
 
         # Check if there is a function_call
         if chat_response.json()["choices"][0]["finish_reason"] == "function_call":
@@ -117,27 +119,40 @@ def generate_chat_response(message_hist):
                 num_children = arguments["num_children"]
                 num_rooms = arguments["num_rooms"]
 
-                rooms_data, url = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
+                rooms_data, url, check_values, data_dict = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
                 print(url)
                 
+
                 # Check if there is rooms retrieved is None or Url is None
-                if rooms_data is None or url is None:
-                    function_rooms_message = "Sorry I am unable to answer your question right now. Try again later."
+                if url is None or data_dict is None:
+                    function_assistant_messages.append("Sorry I am unable to answer your question right now. Try again later.")
                 else:
+                    # Check if there are any invalid inputs
+                    if check_values == True:
+                        function_assistant_messages.append("Apologies, some of your inputs were invalid.")
+                    
+                    loop_message = ""
+
                     # Format and print the extracted room information in chatbot style
-                    function_rooms_message = "Here are the available rooms: "
-                    for idx, room in enumerate(rooms_data, start=1):
-                        room_name = room["name"]
-                        room_price = room["price"]
+                    function_assistant_messages.append(f"Here are the available rooms for, Date: {data_dict['date_range']}, Guests: {data_dict['guest_count']}, Rooms: {data_dict['room_count']}.")
 
-                        room_message = f"(Room {idx}: Name: {room_name} Price: {room_price})"
-                        function_rooms_message += room_message
+                    # Loop to display the rooms info
+                    if rooms_data is None:
+                        function_assistant_messages.append("We do not have any rooms matching your criteria.")
+                        function_assistant_messages.append(f"<a href='{url_official}' target='_blank'>Click here</a>, if you would like to check the website out yourself!")
+                    else:
+                        for idx, room in enumerate(rooms_data, start=1):
+                            room_name = room["name"]
+                            room_price = room["price"]
 
-                    function_rooms_message += f". If you would like to book any one of the rooms, <a href='{url}' target='_blank'>Click here to book</a>"
-                return function_rooms_message
+                            room_message = f"(Room {idx}: Name: {room_name} Price: {room_price})"
+                            loop_message += room_message
+                    
+                        function_assistant_messages.append(loop_message)
+                        function_assistant_messages.append(f"If you would like to book any one of the rooms, <a href='{url}' target='_blank'>Click here to book</a>.")
+                return function_assistant_messages
 
-
-        return assistant_message
+        return assistant_messages
     
     except KeyError as e:
         # Print the full response JSON to see the error details

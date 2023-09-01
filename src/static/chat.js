@@ -22,7 +22,7 @@ function message_load(message, time, user) {
 
 // Function to store messages in local storage
 function message_store(message, time, user) {
-    // Create a new message object with role, content, and timestamp
+    // Create a new message object with role, content, timestamp
     const newMessage = {
         role: user,
         content: message,
@@ -38,7 +38,7 @@ function message_store(message, time, user) {
 }
 
 // Establish chatsocket connection
-const chatSocket = new WebSocket(
+const chatSocket = new ReconnectingWebSocket(
     'ws://'
     + window.location.host
     + '/ws/chat/'
@@ -101,21 +101,16 @@ document.querySelector('#chat-message-input').onkeyup = function(e) {
 
 document.querySelector('#chat-message-submit').onclick = function(e) {
     const messageInputDom = document.querySelector('#chat-message-input');
-    // Handle new message
     const message = messageInputDom.value;
-    chatSocket.send(JSON.stringify({
-        'command': 'new_message',
-        'message': message
-    }));
-    messageInputDom.value = '';
-
-    // Handle existing messages
     const existingMessages = JSON.parse(localStorage.getItem('chatMessages'));
     console.log(existingMessages)
+    console.log(message)
 
+    // Handle new message and existing messages
     chatSocket.send(JSON.stringify({
-        'command': 'send_existing_messages',
+        'command': 'send_all_messages',
         'message_new': message,
         'messages': existingMessages,
     }));
+    messageInputDom.value = '';
 };
