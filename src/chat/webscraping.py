@@ -98,7 +98,7 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     try:
         room_rate_items = wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "room-rate-card")))
     except Exception as e:
-        print("Exception:", e)
+        print("Exception for room_rate_items:", e)
 
     # Extract room data
     try:
@@ -106,7 +106,7 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
         print(rooms)
 
     except Exception as e:
-        print("Exception:", e)
+        print("Exception for room:", e)
         rooms = None
 
     # Extract values to display
@@ -130,7 +130,7 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
         print(data_dict)
     
     except Exception as e:
-        print("Exception:", e)
+        print("Exception for data_dict:", e)
         data_dict = None
 
     # Close the browser window
