@@ -93,6 +93,12 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     data_dict = {}
 
     print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
+    
+    # Get the entire page source code
+    page_source = driver.page_source
+
+    # Print the page content
+    print(page_source)
 
     # Wait for room rate items to load
     try:
