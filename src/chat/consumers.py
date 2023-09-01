@@ -53,7 +53,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             
             # Use chatgpt to generate a response concurrently
-            assistant_messages_task = asyncio.create_task(oau.generate_chat_response(existing_messages))
+            assistant_messages_task = oau.generate_chat_response(existing_messages)
 
             if assistant_messages_task == None:  # Check if there is an error
                 await self.channel_layer.group_send(

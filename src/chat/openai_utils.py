@@ -120,8 +120,6 @@ def generate_chat_response(message_hist):
                 num_rooms = arguments["num_rooms"]
 
                 rooms_data, url, check_values, data_dict = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
-                print(url)
-                
 
                 # Check if there is rooms retrieved is None or Url is None
                 if url is None or data_dict is None or check_values is None:
