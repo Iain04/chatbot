@@ -74,7 +74,7 @@ class CheckRoomTool(BaseTool):
     args_schema: Optional[Type[BaseModel]] = CheckRoomCheckInput
 
 # Tool for Crowne Plaza matters
-doc_path = str(Path("C:/Users/iainl/OneDrive/Documents/Year3/MP/Project/src/chat/data.txt"))
+doc_path = str(Path("C:/Users/iainl/OneDrive/Documents/Year3/MP/PProject/src/static/data.txt"))
 loader = TextLoader(doc_path)
 documents = loader.load()
 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
