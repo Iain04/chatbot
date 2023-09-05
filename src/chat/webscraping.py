@@ -27,7 +27,7 @@ month_mapping = {
 # Convert date to fit into urls
 def convert_date(date):
     # Convert the date string to a datetime object
-    datetime_date = datetime.strptime(date, "%Y-%m-%d")
+    datetime_date = datetime.strptime(date, "%d-%m-%Y")
 
     # Extract year, month, and day components
     year = datetime_date.year
@@ -85,26 +85,27 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     driver.get(new_url)
 
     # Wait for the page to load (adjust the timeout as needed)
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 5)
 
     # Initialize values outside the try-except block
     room_rate_items = None
-    rooms = None
+    rooms = "There are no rooms avaliable for corresponding to your values."
     data_dict = {}
 
     print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
     
-    # Get the entire page source code
-    page_source = driver.page_source
+    # # Get the entire page source code
+    # page_source = driver.page_source
 
     # Print the page content
-    print(page_source)
+    # print(page_source)
 
     # Wait for room rate items to load
     try:
         room_rate_items = wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "room-rate-card")))
     except Exception as e:
         print("Exception for room_rate_items:", e)
+        return rooms
 
     # Extract room data
     try:
@@ -113,34 +114,10 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
 
     except Exception as e:
         print("Exception for room:", e)
-        rooms = None
-
-    # Extract values to display
-    try:
-        
-        # Wait for the elements to become visible (adjust timeout as needed)
-        date_element = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[1]'))
-        )
-        guest_count_element = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[2]/span[1]'))
-        )
-        room_count_element = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="crr-bc-wrapper"]/search-header/div/div[1]/div[2]/span[2]'))
-        )
-    
-        # Extract data from the elements
-        data_dict['date_range'] = date_element.text
-        data_dict['guest_count'] = int(guest_count_element.text.split()[0])
-        data_dict['room_count'] = int(room_count_element.text.split()[0])
-        print(data_dict)
-    
-    except Exception as e:
-        print("Exception for data_dict:", e)
-        data_dict = None
+        return rooms
 
     # Close the browser window
     driver.quit()
 
-    return rooms, new_url, data_dict
+    return rooms
 

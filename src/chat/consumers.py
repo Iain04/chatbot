@@ -53,17 +53,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             
             # Use chatgpt to generate a response
-            assistant_messages = oau.generate_chat_response(existing_messages)
+            assistant_message = oau.generate_chat_response(existing_messages)
 
-            if assistant_messages == None:  # Check if there is an error
+            if assistant_message == None:  # Check if there is an error
                 await self.channel_layer.group_send(
                     self.room_group_name, {"type": "bot_message", "assistant_message": "Sorry for the inconvenience, I am unable to answer your question right now. Try again later."}
                 )
             else:
-                for assistant_message in assistant_messages:
-                    await self.channel_layer.group_send(
-                        self.room_group_name, {"type": "bot_message", "assistant_message": assistant_message}
-                    )
+                await self.channel_layer.group_send(
+                    self.room_group_name, {"type": "bot_message", "assistant_message": assistant_message}
+                )
 
 
     # Receive message from room group
