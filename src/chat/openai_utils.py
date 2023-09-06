@@ -74,7 +74,7 @@ class CheckRoomTool(BaseTool):
     args_schema: Optional[Type[BaseModel]] = CheckRoomCheckInput
 
 # Tool for Crowne Plaza matters
-doc_path = str(Path("/home/ubuntu/chatbot/src/static"))
+doc_path = str(Path("/home/ubuntu/chatbot/src/static/data.txt"))
 loader = TextLoader(doc_path)
 documents = loader.load()
 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
