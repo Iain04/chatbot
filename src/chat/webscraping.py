@@ -90,7 +90,6 @@ def scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_dat
     # Initialize values outside the try-except block
     room_rate_items = None
     rooms = "There are no rooms avaliable for corresponding to your values."
-    data_dict = {}
 
     print("Is page loaded?", driver.execute_script("return document.readyState") == "complete")
     

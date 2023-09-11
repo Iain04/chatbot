@@ -1,11 +1,8 @@
 import os
-
-import openai
-from datetime import datetime
-import json
-import requests
-from tenacity import retry, wait_random_exponential, stop_after_attempt
 from dotenv import load_dotenv
+from datetime import datetime
+
+import boto3
 
 from langchain.chat_models import ChatOpenAI
 
@@ -33,6 +30,8 @@ load_dotenv()
 
 # Use API Key and set the GPT model
 openai_api_key = os.environ.get('OPENAI_API_KEY')
+aws_access_key_id = os.environ.get('AWS_ACCESS_KEY')
+aws_secret_access_key = os.environ.get('AWS_SECRET_KEY')
 GPT_MODEL = "gpt-3.5-turbo-0613"
 
 # Global variable
@@ -45,6 +44,30 @@ llm = ChatOpenAI(openai_api_key=openai_api_key, model=GPT_MODEL, temperature=0,)
 
 
 # Create tools
+
+# Function for storing feedback
+def store_feedback(feedback):
+    try:
+        dynamodb = boto3.resource('dynamodb',
+                                region_name='us-east-1',
+                                aws_access_key_id=aws_access_key_id, 
+                                aws_secret_access_key=aws_secret_access_key)
+         # Get the current datetime
+        current_datetime = datetime.now().strftime('%H:%M:%S %Y-%m-%d')
+        # Get the DynamoDB table
+        table = dynamodb.Table('Feedback')
+        # Data to be inserted into DynamoDB
+        data = {
+            'date': current_datetime,
+            'feedback':feedback
+            }
+
+        # Put the item into the table
+        table.put_item(Item=data)
+        return "Thank you for your feedback! We appreciate your recommendation."
+    except Exception as e:
+        print("Exception for feedback:", e)
+        return "Sorry, we are unable to store your feedback."
 
 # Custom tool for getting hotel room avalibility
 class CheckRoomCheckInput(BaseModel):
@@ -64,17 +87,37 @@ class CheckRoomTool(BaseTool):
         # print("i'm running")
         rooms = webscrap.scape_hotel(num_adult, num_children, num_rooms, check_in_date, check_out_date)
 
-        #  url_html = f"<a href='{new_url}' target='_blank'>Click here</a>"
-
-        return rooms #, url_html, data_dict
+        return rooms
 
     def _arun(self, num_adult: int, num_children: int, num_rooms: int, check_in_date: str, check_out_date: str):
         raise NotImplementedError("This tool does not support async")
 
     args_schema: Optional[Type[BaseModel]] = CheckRoomCheckInput
 
-# Tool for Crowne Plaza matters
-doc_path = str(Path("/home/ubuntu/chatbot/src/static"))
+
+# Custom tool for getting hotel room avalibility
+class CheckFeedbackInput(BaseModel):
+    """Input for Feedback store."""
+    feedback: str = Field(..., description="The feedback that the user gives. If you are unable to store it apologise.")
+
+class CheckFeedbackTool(BaseTool):
+    name = "get_feedback"
+    description = "Gets the users feedback and stores it."
+
+    def _run(self, feedback: str):
+        # print("i'm running")
+        feedback_response = store_feedback(feedback)
+
+        return feedback_response
+
+    def _arun(self, feedback: str):
+        raise NotImplementedError("This tool does not support async")
+
+    args_schema: Optional[Type[BaseModel]] = CheckFeedbackInput
+
+# Tool for specific Crowne Plaza matters
+doc_path = "C:\\Users\\iainl\\OneDrive\\Documents\\Year3\\MP\\Project\\src\\static\\data.txt"
+
 loader = TextLoader(doc_path)
 documents = loader.load()
 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
@@ -88,11 +131,12 @@ search_doc = RetrievalQA.from_chain_type(
 )
 
 tools = [CheckRoomTool(),
+         CheckFeedbackTool(),
         Tool(
             name="get_doc_info",
             func=search_doc.run,
             description="A document search. Use this only if you cannot answer the question and require more information.",
-        ),]
+        )]
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
